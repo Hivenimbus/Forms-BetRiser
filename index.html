@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BetRiser - Ativação Plano Vitalício</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="form-card">
+            <div class="logo-section">
+                <img src="public/Logo.png" alt="BetRiser Logo" class="logo">
+                <h1 class="title">BetRiser</h1>
+                <p class="subtitle">Gerenciamento de Lucros e Renda Extra</p>
+            </div>
+
+            <form id="betriser-form" class="form">
+                <div class="form-header">
+                    <h2>Ativação Plano Vitalício</h2>
+                    <p>Preencha seus dados para ativar seu acesso vitalício</p>
+                </div>
+
+                <div class="registration-requirement">
+                    <div class="requirement-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="requirement-content">
+                        <h3>Requisito Obrigatório</h3>
+                        <p>Para preencher este formulário, você precisa estar registrado na plataforma BetRiser.</p>
+                        <a href="https://www.betriser.com.br/" target="_blank" class="betriser-link">
+                            <i class="fas fa-external-link-alt"></i>
+                            Acessar BetRiser
+                        </a>
+                    </div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label for="confirm-registration" class="checkbox-label">
+                        <input type="checkbox" id="confirm-registration" name="confirm-registration" required>
+                        <span class="checkbox-text">Confirmo que possuo cadastro ativo na plataforma BetRiser</span>
+                    </label>
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="nome">
+                        <i class="fas fa-user"></i> Nome Completo
+                    </label>
+                    <input type="text" id="nome" name="nome" required>
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i> Email
+                    </label>
+                    <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="telegram">
+                        <i class="fab fa-telegram"></i> Telegram
+                    </label>
+                    <input type="text" id="telegram" name="telegram" placeholder="@seu_telegram" required>
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="discord">
+                        <i class="fab fa-discord"></i> Discord
+                    </label>
+                    <input type="text" id="discord" name="discord" placeholder="seu_discord#1234" required>
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="instagram">
+                        <i class="fab fa-instagram"></i> Instagram
+                    </label>
+                    <input type="text" id="instagram" name="instagram" placeholder="@seu_instagram" required>
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="whatsapp">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </label>
+                    <input type="tel" id="whatsapp" name="whatsapp" placeholder="(11) 99999-9999" required>
+                    <span class="error-message"></span>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <span class="btn-text">Ativar Plano Vitalício</span>
+                    <div class="spinner" style="display: none;"></div>
+                </button>
+
+                <div class="success-message" style="display: none;">
+                    <i class="fas fa-check-circle"></i>
+                    <p>Cadastro realizado com sucesso! Você receberá uma confirmação em breve.</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

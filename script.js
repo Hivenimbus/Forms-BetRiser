@@ -38,11 +38,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         discord: function(value) {
             if (!value.trim()) return 'Discord é obrigatório';
-            if (!value.includes('#')) return 'Discord deve conter # e números';
-            const parts = value.split('#');
-            if (parts.length !== 2 || parts[1].length !== 4 || !/^\d{4}$/.test(parts[1])) {
-                return 'Discord deve estar no formato: usuario#1234';
-            }
             return null;
         },
 

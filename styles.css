@@ -307,28 +307,124 @@ input.success {
     100% { transform: rotate(360deg); }
 }
 
+@keyframes successPulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 .success-message {
     text-align: center;
     background: #d4edda;
     color: #155724;
-    padding: 20px;
+    padding: 30px;
     border-radius: 12px;
     margin-top: 20px;
     border: 1px solid #c3e6cb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
 }
 
-.success-message i {
-    font-size: 48px;
+.success-icon {
+    margin-bottom: 8px;
+}
+
+.success-icon i {
+    font-size: 64px;
     color: #27ae60;
+    animation: successPulse 0.6s ease-out;
+}
+
+.success-content {
+    width: 100%;
+}
+
+.success-content h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #155724;
     margin-bottom: 12px;
 }
 
-.success-message p {
-    font-size: 16px;
+.success-main {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.success-main strong {
+    color: #0f5132;
+    font-weight: 700;
+}
+
+.success-subtitle {
+    font-size: 14px;
+    font-weight: 400;
+    color: #155724;
+    margin-bottom: 16px;
+    opacity: 0.8;
+}
+
+.success-timer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #0f5132;
     font-weight: 500;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.success-timer i {
+    font-size: 14px;
+    color: #27ae60;
 }
 
 @media (max-width: 480px) {
+    .success-message {
+        padding: 24px 20px;
+        gap: 12px;
+    }
+
+    .success-icon i {
+        font-size: 48px;
+    }
+
+    .success-content h3 {
+        font-size: 20px;
+        margin-bottom: 8px;
+    }
+
+    .success-main {
+        font-size: 16px;
+        margin-bottom: 6px;
+    }
+
+    .success-subtitle {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .success-timer {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+}
     .form-card {
         padding: 30px 20px;
         border-radius: 20px;

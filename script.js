@@ -1,13 +1,23 @@
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing form...');
+
     const form = document.getElementById('betriser-form');
     const submitBtn = document.querySelector('.submit-btn');
     const btnText = document.querySelector('.btn-text');
     const spinner = document.querySelector('.spinner');
     const successMessage = document.querySelector('.success-message');
 
-    $('#whatsapp').mask('(00) 00000-0000', {
-        placeholder: '(11) 99999-9999'
-    });
+    console.log('Form elements:', { form, submitBtn, btnText, spinner, successMessage });
+
+    // Check if jQuery is loaded
+    if (typeof $ === 'undefined') {
+        console.error('jQuery is not loaded!');
+    } else {
+        console.log('jQuery is loaded, applying mask...');
+        $('#whatsapp').mask('(00) 00000-0000', {
+            placeholder: '(11) 99999-9999'
+        });
+    }
 
     const validators = {
         'confirm-registration': function(value) {
@@ -30,21 +40,16 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         telegram: function(value) {
-            if (!value.trim()) return 'Telegram é obrigatório';
-            if (!value.startsWith('@')) return 'Telegram deve começar com @';
-            if (value.length < 6) return 'Telegram inválido';
+            if (value.trim() && value.length < 5) return 'Telegram inválido';
             return null;
         },
 
         discord: function(value) {
-            if (!value.trim()) return 'Discord é obrigatório';
             return null;
         },
 
         instagram: function(value) {
-            if (!value.trim()) return 'Instagram é obrigatório';
-            if (!value.startsWith('@')) return 'Instagram deve começar com @';
-            if (value.length < 5) return 'Instagram inválido';
+            if (value.trim() && value.length < 3) return 'Instagram inválido';
             return null;
         },
 
@@ -84,7 +89,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showError(field, message) {
         const input = document.getElementById(field);
+        if (!input) {
+            console.error(`Input element not found for field: ${field}`);
+            return;
+        }
+
         const errorElement = input.parentElement.querySelector('.error-message');
+        if (!errorElement) {
+            console.error(`Error message element not found for field: ${field}`);
+            console.error('Input parent element:', input.parentElement);
+            return;
+        }
 
         input.classList.add('error');
         input.classList.remove('success');
@@ -94,7 +109,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showSuccess(field) {
         const input = document.getElementById(field);
+        if (!input) {
+            console.error(`Input element not found for field: ${field}`);
+            return;
+        }
+
         const errorElement = input.parentElement.querySelector('.error-message');
+        if (!errorElement) {
+            console.error(`Error message element not found for field: ${field}`);
+            console.error('Input parent element:', input.parentElement);
+            return;
+        }
 
         input.classList.remove('error');
         input.classList.add('success');
@@ -133,25 +158,41 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     form.addEventListener('submit', async function(e) {
+        console.log('Form submitted!');
         e.preventDefault();
 
         let isValid = true;
         const formData = {};
 
+        console.log('Starting validation...');
         Object.keys(validators).forEach(field => {
             const input = document.getElementById(field);
+            console.log(`Validating field: ${field}, element:`, input);
+
+            if (!input) {
+                console.error(`Input element not found for field: ${field}`);
+                isValid = false;
+                return;
+            }
+
             formData[field] = field === 'confirm-registration' ? input.checked : input.value;
+            console.log(`Field ${field} value:`, formData[field]);
 
             if (!validateField(field)) {
+                console.log(`Validation failed for field: ${field}`);
                 isValid = false;
             }
         });
+
+        console.log('Validation result:', isValid);
+        console.log('Form data:', formData);
 
         if (!isValid) {
             const firstError = document.querySelector('.input.error, input.error');
             if (firstError) {
                 firstError.focus();
             }
+            console.log('Form submission blocked due to validation errors');
             return;
         }
 
@@ -160,23 +201,83 @@ document.addEventListener('DOMContentLoaded', function() {
         spinner.style.display = 'block';
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            console.log('Starting webhook submission...');
+            const webhookUrl = 'https://n8n.hivebot.cloud/webhook/ativacao-betriser';
+
+            const payload = {
+                ...formData,
+                timestamp: new Date().toISOString(),
+                source: 'betriser-activation-form'
+            };
+
+            console.log('Payload to send:', payload);
+
+            const response = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const responseData = await response.json();
+            console.log('Response data:', responseData);
 
             form.style.display = 'none';
             successMessage.style.display = 'block';
 
-            console.log('Dados do formulário:', formData);
+            console.log('Formulário enviado com sucesso:', responseData);
 
         } catch (error) {
             console.error('Erro ao enviar formulário:', error);
+            console.error('Error details:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
 
             submitBtn.disabled = false;
             btnText.style.opacity = '1';
             spinner.style.display = 'none';
 
-            alert('Ocorreu um erro ao enviar o formulário. Tente novamente.');
+            let errorMessage = 'Ocorreu um erro ao enviar o formulário. Tente novamente.';
+
+            if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                errorMessage = 'Erro de conexão. Verifique sua internet e tente novamente.';
+            } else if (error.message.includes('HTTP error! status:')) {
+                errorMessage = 'Erro no servidor. Tente novamente em alguns instantes.';
+            }
+
+            console.log('Showing error message:', errorMessage);
+            alert(errorMessage);
         }
     });
+
+    // Add global error handler
+    window.addEventListener('error', function(e) {
+        console.error('Global JavaScript error:', e.error);
+        console.error('Error details:', {
+            message: e.message,
+            filename: e.filename,
+            lineno: e.lineno,
+            colno: e.colno,
+            error: e.error
+        });
+    });
+
+    // Add unhandled promise rejection handler
+    window.addEventListener('unhandledrejection', function(e) {
+        console.error('Unhandled promise rejection:', e.reason);
+    });
+
+    console.log('Form initialization completed successfully');
 
     const inputs = document.querySelectorAll('input');
     inputs.forEach((input, index) => {

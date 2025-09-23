@@ -67,7 +67,7 @@
                     <label for="telegram">
                         <i class="fab fa-telegram"></i> Telegram
                     </label>
-                    <input type="text" id="telegram" name="telegram" placeholder="@seu_telegram" required>
+                    <input type="text" id="telegram" name="telegram" placeholder="seu_telegram">
                     <span class="error-message"></span>
                 </div>
 
@@ -75,7 +75,7 @@
                     <label for="discord">
                         <i class="fab fa-discord"></i> Discord
                     </label>
-                    <input type="text" id="discord" name="discord" placeholder="seu_discord" required>
+                    <input type="text" id="discord" name="discord" placeholder="seu_discord">
                     <span class="error-message"></span>
                 </div>
 
@@ -83,7 +83,7 @@
                     <label for="instagram">
                         <i class="fab fa-instagram"></i> Instagram
                     </label>
-                    <input type="text" id="instagram" name="instagram" placeholder="@seu_instagram" required>
+                    <input type="text" id="instagram" name="instagram" placeholder="seu_instagram">
                     <span class="error-message"></span>
                 </div>
 
@@ -101,8 +101,18 @@
                 </button>
 
                 <div class="success-message" style="display: none;">
-                    <i class="fas fa-check-circle"></i>
-                    <p>Cadastro realizado com sucesso! Você receberá uma confirmação em breve.</p>
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="success-content">
+                        <h3>Cadastro Realizado com Sucesso!</h3>
+                        <p class="success-main">Seu plano vitalício será ativado em até <strong>1 hora</strong>.</p>
+                        <p class="success-subtitle">Você receberá uma confirmação assim que o processo for concluído.</p>
+                        <div class="success-timer">
+                            <i class="fas fa-clock"></i>
+                            <span>Aguarde o processamento...</span>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>

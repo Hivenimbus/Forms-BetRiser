@@ -212,51 +212,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
             console.log('Payload to send:', payload);
 
-            const response = await fetch(webhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            });
+            // Try to send to webhook, but don't block user experience if it fails
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
 
-            console.log('Response status:', response.status);
-            console.log('Response ok:', response.ok);
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                if (response.ok) {
+                    const responseData = await response.json();
+                    console.log('Response data:', responseData);
+                }
+            } catch (webhookError) {
+                console.error('Webhook failed, but continuing with user experience:', webhookError);
             }
 
-            const responseData = await response.json();
-            console.log('Response data:', responseData);
-
-            form.style.display = 'none';
-            successMessage.style.display = 'block';
-
-            console.log('Formulário enviado com sucesso:', responseData);
+            // Always redirect to success page
+            console.log('Redirecting to success page...');
+            window.location.href = 'success.html';
 
         } catch (error) {
-            console.error('Erro ao enviar formulário:', error);
+            console.error('Critical error in form submission:', error);
             console.error('Error details:', {
                 name: error.name,
                 message: error.message,
                 stack: error.stack
             });
 
-            submitBtn.disabled = false;
-            btnText.style.opacity = '1';
-            spinner.style.display = 'none';
-
-            let errorMessage = 'Ocorreu um erro ao enviar o formulário. Tente novamente.';
-
-            if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                errorMessage = 'Erro de conexão. Verifique sua internet e tente novamente.';
-            } else if (error.message.includes('HTTP error! status:')) {
-                errorMessage = 'Erro no servidor. Tente novamente em alguns instantes.';
-            }
-
-            console.log('Showing error message:', errorMessage);
-            alert(errorMessage);
+            // Even in case of critical error, redirect to success page
+            console.log('Redirecting to success page despite error...');
+            window.location.href = 'success.html';
         }
     });
 

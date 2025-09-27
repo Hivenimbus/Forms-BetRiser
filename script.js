@@ -61,26 +61,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 return 'WhatsApp deve conter DDD + número (ex: 11999999999)';
             }
 
-            if (cleaned.length === 10) {
-                const ddd = cleaned.slice(0, 2);
-                if (parseInt(ddd) < 11 || parseInt(ddd) > 99) {
-                    return 'DDD inválido';
-                }
-            } else if (cleaned.length === 11) {
-                const ddd = cleaned.slice(0, 2);
-                if (parseInt(ddd) < 11 || parseInt(ddd) > 99) {
-                    return 'DDD inválido';
-                }
-            } else if (cleaned.length === 12) {
-                const ddd = cleaned.slice(2, 4);
-                if (parseInt(ddd) < 11 || parseInt(ddd) > 99) {
-                    return 'DDD inválido';
-                }
-            } else if (cleaned.length === 13) {
-                const ddd = cleaned.slice(2, 4);
-                if (parseInt(ddd) < 11 || parseInt(ddd) > 99) {
-                    return 'DDD inválido';
-                }
+            // Optimized DDD validation
+            let ddd;
+            if (cleaned.length <= 11) {
+                ddd = cleaned.slice(0, 2);
+            } else {
+                ddd = cleaned.slice(2, 4);
+            }
+
+            const dddNum = parseInt(ddd);
+            if (dddNum < 11 || dddNum > 99) {
+                return 'DDD inválido';
             }
 
             return null;
@@ -94,7 +85,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const errorElement = input.parentElement.querySelector('.error-message');
+        let errorElement;
+        if (field === 'confirm-registration') {
+            // For checkbox, the error message is in the form-group (grandparent)
+            errorElement = input.parentElement.parentElement.querySelector('.error-message');
+        } else {
+            // For other fields, the error message is in the parent
+            errorElement = input.parentElement.querySelector('.error-message');
+        }
+
         if (!errorElement) {
             console.error(`Error message element not found for field: ${field}`);
             console.error('Input parent element:', input.parentElement);
@@ -114,7 +113,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const errorElement = input.parentElement.querySelector('.error-message');
+        let errorElement;
+        if (field === 'confirm-registration') {
+            // For checkbox, the error message is in the form-group (grandparent)
+            errorElement = input.parentElement.parentElement.querySelector('.error-message');
+        } else {
+            // For other fields, the error message is in the parent
+            errorElement = input.parentElement.querySelector('.error-message');
+        }
+
         if (!errorElement) {
             console.error(`Error message element not found for field: ${field}`);
             console.error('Input parent element:', input.parentElement);
@@ -200,6 +207,24 @@ document.addEventListener('DOMContentLoaded', function() {
         btnText.style.opacity = '0';
         spinner.style.display = 'block';
 
+        // Update loading text to show progress
+        const loadingSteps = [
+            'Validando seus dados...',
+            'Verificando cadastro...',
+            'Processando ativação...',
+            'Quase pronto...'
+        ];
+
+        let currentStep = 0;
+        const updateLoadingText = () => {
+            if (currentStep < loadingSteps.length) {
+                console.log(loadingSteps[currentStep]);
+                currentStep++;
+                setTimeout(updateLoadingText, 2000); // Update every 2 seconds
+            }
+        };
+        updateLoadingText();
+
         try {
             console.log('Starting webhook submission...');
             const webhookUrl = 'https://n8n.hivebot.cloud/webhook/ativacao-betriser';
@@ -212,15 +237,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
             console.log('Payload to send:', payload);
 
-            // Try to send to webhook, but don't block user experience if it fails
+            // Send to webhook and check response
             try {
+                // Create AbortController for timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
+
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
                 });
+
+                clearTimeout(timeoutId);
 
                 console.log('Response status:', response.status);
                 console.log('Response ok:', response.ok);
@@ -228,14 +260,74 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.ok) {
                     const responseData = await response.json();
                     console.log('Response data:', responseData);
+
+                    // Check if user is registered
+                    if (responseData.response === 'fail') {
+                        // User is not registered, show error
+                        submitBtn.disabled = false;
+                        btnText.style.opacity = '1';
+                        spinner.style.display = 'none';
+
+                        showError('email', 'Este email não está cadastrado na plataforma BetRiser. Por favor, crie sua conta primeiro.');
+                        return;
+                    } else if (responseData.response === 'success') {
+                        // User is registered, continue to success page
+                        console.log('User validated, redirecting to success page...');
+                        window.location.href = 'success.html';
+                        return;
+                    }
+                } else {
+                    // Handle HTTP error response
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
             } catch (webhookError) {
-                console.error('Webhook failed, but continuing with user experience:', webhookError);
-            }
+                console.error('Webhook failed:', webhookError);
 
-            // Always redirect to success page
-            console.log('Redirecting to success page...');
-            window.location.href = 'success.html';
+                // Check if it's a timeout error
+                if (webhookError.name === 'AbortError') {
+                    console.log('Webhook timeout, redirecting anyway...');
+                    // Fallback: redirect to success page even if webhook times out
+                    window.location.href = 'success.html';
+                    return;
+                }
+
+                submitBtn.disabled = false;
+                btnText.style.opacity = '1';
+                spinner.style.display = 'none';
+
+                // Show specific error messages based on error type
+                let errorMessage = 'Não foi possível verificar seu cadastro. Por favor, tente novamente mais tarde.';
+                let errorTitle = 'Erro na Conexão';
+
+                if (webhookError.name === 'NetworkError' || webhookError.message.includes('NetworkError')) {
+                    errorMessage = 'Sem conexão com a internet. Verifique sua conexão e tente novamente.';
+                    errorTitle = 'Sem Conexão';
+                } else if (webhookError.message.includes('Failed to fetch')) {
+                    errorMessage = 'Servidor indisponível no momento. Por favor, tente novamente em alguns minutos.';
+                    errorTitle = 'Servidor Indisponível';
+                }
+
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'api-error-message';
+                errorDiv.innerHTML = `
+                    <div class="error-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="error-content">
+                        <h3>${errorTitle}</h3>
+                        <p>${errorMessage}</p>
+                    </div>
+                `;
+
+                form.appendChild(errorDiv);
+
+                // Remove error message after 5 seconds
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 5000);
+
+                return;
+            }
 
         } catch (error) {
             console.error('Critical error in form submission:', error);

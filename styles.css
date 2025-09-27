@@ -512,3 +512,36 @@ input.success {
         transform: translateX(0);
     }
 }
+
+/* API Error Message Styles */
+.api-error-message {
+    background: #fee;
+    border: 1px solid #fcc;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    animation: slideUp 0.5s ease-out;
+}
+
+.api-error-message .error-icon {
+    color: #e74c3c;
+    font-size: 24px;
+    min-width: 24px;
+}
+
+.api-error-message .error-content h3 {
+    color: #c0392b;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.api-error-message .error-content p {
+    color: #721c24;
+    font-size: 14px;
+    line-height: 1.4;
+    margin: 0;
+}

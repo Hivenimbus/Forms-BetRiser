@@ -272,6 +272,7 @@ input.success {
     align-items: center;
     justify-content: center;
     margin-top: 32px;
+    height: 52px;
 }
 
 .submit-btn:hover {
@@ -300,6 +301,11 @@ input.success {
     border-top: 2px solid white;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
 }
 
 @keyframes spin {
